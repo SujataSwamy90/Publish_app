@@ -2,6 +2,9 @@ package view;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import helper.NetworkOperations;
 import publish_app.raweng.com.publish_app.R;
@@ -22,4 +25,15 @@ public class UILoginScreen extends Activity {
         operations.execute(AppConstant.USER_SESSION_URL);
 
     }
+
+
+
+    public ViewManager delegate;
+
+    public interface ViewManager{
+
+        void registerLoginButtonEvent(Button loginButton,EditText userEditText,EditText passwordEditText);
+
+    }
+
 }

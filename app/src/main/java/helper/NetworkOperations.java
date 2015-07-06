@@ -3,6 +3,7 @@ package helper;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -50,16 +51,17 @@ public class NetworkOperations extends AsyncTask<String , Void, String> {
             JSONObject jsMain = new JSONObject();
 
             JSONObject jsInside  = new JSONObject();
-            jsInside.put("",myurl[1]);
-
-            jsMain.put("user",)
-            dos.writeBytes(myStringData + lineEnd);
+            jsInside.put("email",myurl[1]);
+            jsInside.put("password",myurl[2]);
+            jsMain.put("user",jsInside);
+            dos.writeBytes(String.valueOf(jsMain));
             conn.connect();
             int response = conn.getResponseCode();
             is = conn.getInputStream();
 
             // Convert the InputStream into a string
             String contentAsString = convertStreamToString(is);
+            Log.d("content as string: ", contentAsString);
             return contentAsString;
 
             // Makes sure that the InputStream is closed after the app is
@@ -69,6 +71,8 @@ public class NetworkOperations extends AsyncTask<String , Void, String> {
         } catch (ProtocolException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
             e.printStackTrace();
         } finally {
             if (is != null) {
