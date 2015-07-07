@@ -15,18 +15,29 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 
+import view.UILoginScreen;
+import viewmodel.UILoginViewModel;
+
 /**
  * Created by sujata on 6/7/15.
  */
 public class NetworkOperations extends AsyncTask<String , Void, String> {
 
 
+    private DataOutputStream printout;
+    private InputStream is;
+    public  UILoginScreen.AsyncResponse delegate;
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+    }
+
     @Override
     protected String doInBackground(String... strings) {
 
         try {
           String data =  fetchData(strings);
-            System.out.println("data: "+data);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -34,38 +45,37 @@ public class NetworkOperations extends AsyncTask<String , Void, String> {
         return null;
     }
 
-    public String fetchData(String[] myurl) throws IOException {
-        InputStream is = null;
-        // Only display the first 500 characters of the retrieved
-        // web page content.
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DataOutputStream dos = new DataOutputStream(baos);
+    @Override
+    protected void onPostExecute(String result) {
+        super.onPostExecute(result);
+
+            delegate.processFinish(result);
+
+    }
+
+    public String fetchData(String[] data) throws IOException {
 
         try {
-            URL url = new URL(myurl[0]);
+            URL url = new URL(data[0]);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
             conn.setDoInput(true);
-            // Starts the query
-
-            JSONObject jsMain = new JSONObject();
-
-            JSONObject jsInside  = new JSONObject();
-            jsInside.put("email",myurl[1]);
-            jsInside.put("password",myurl[2]);
-            jsMain.put("user",jsInside);
-            dos.writeBytes(String.valueOf(jsMain));
             conn.connect();
-            int response = conn.getResponseCode();
+            JSONObject jsonParam = new JSONObject();
+            jsonParam.put("email", ""+data[1]);
+            jsonParam.put("password",data[2]);
+            JSONObject jsonMain = new JSONObject();
+            jsonMain.put("user", jsonParam);
+            printout = new DataOutputStream(conn.getOutputStream ());
+            String str = jsonMain.toString();
+            byte[] dataBytes=str.getBytes("UTF-8");
+            printout.write(dataBytes);
+            printout.flush();
+            printout.close();
             is = conn.getInputStream();
-
-            // Convert the InputStream into a string
-            String contentAsString = convertStreamToString(is);
-            Log.d("content as string: ", contentAsString);
+            String contentAsString =   convertStreamToString(is);
             return contentAsString;
-
-            // Makes sure that the InputStream is closed after the app is
-            // finished using it.
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (ProtocolException e) {
@@ -76,7 +86,6 @@ public class NetworkOperations extends AsyncTask<String , Void, String> {
             e.printStackTrace();
         } finally {
             if (is != null) {
-
                 is.close();
             }
         }

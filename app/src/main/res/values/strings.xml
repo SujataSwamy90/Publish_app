@@ -6,4 +6,6 @@
     <string name="login_text">Login</string>
     <string name="username_text">UserName</string>
     <string name="password_text">Password</string>
+    <string name="validation_username_text">Please enter email id.</string>
+    <string name="validation_password_text">Please enter password.</string>
 </resources>
